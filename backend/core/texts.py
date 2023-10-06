@@ -1,3 +1,5 @@
+# admin
+EMPTY_VALUE_DISPLAY = '-пусто-'
 # users/models
 CUSTOM_USER_EMAIL_HELP_TEXT = "Введите вашу электронную почту"
 CUSTOM_USER_FIRST_NAME_HELP_TEXT = "Введите ваше имя"

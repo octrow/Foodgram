@@ -1,11 +1,18 @@
 from django.contrib import admin
 from django.contrib.admin import display
-from django.utils.safestring import mark_safe
+from django.utils.safestring import mark_safe, SafeString
 
 from .models import (AmountIngredient, Favorite, Ingredient, Recipe,
                      ShoppingCart, Tag)
+from core.texts import EMPTY_VALUE_DISPLAY
+
 
 admin.site.site_header = "Администрирование Foodgram"
+
+
+class IngredientInline(admin.TabularInline):
+    model = AmountIngredient
+    extra = 1
 
 
 @admin.register(Recipe)
@@ -14,25 +21,42 @@ class RecipeAdmin(admin.ModelAdmin):
         "name",
         "author",
         "get_image",
-        # "added_in_favorites"
+        "cooking_time",
+        "count_favorites",
     )
-    # readonly_fields = ("added_in_favorites",)
-    list_filter = (
-        "author",
+    fields = (
+        (
+            "name",
+            "cooking_time",
+        ),
+        (
+            "author",
+            "tags",
+        ),
+        ("text",),
+        ("image",),
+    )
+    raw_id_fields = ("author",)
+    search_fields = (
         "name",
-        "tags",
+        "author__username",
+        "tags__name",
     )
+    list_filter = ("name", "author__username", "tags__name")
+
+    inlines = (IngredientInline,)
+    save_on_top = True
+    empty_value_display = EMPTY_VALUE_DISPLAY
 
     def get_image(self, obj):
         return mark_safe(f'<img src={obj.image.url} width="80" hieght="30"')
 
-    get_image.short_description = "Изображение"
+    get_image.short_description = "Фотография"
 
-    @display(description="Количество в избранных")
-    def added_in_favorites(self, obj):
-        return obj.favorites.count()
+    def count_favorites(self, obj):
+        return obj.favorite.count()
 
-    added_in_favorites.short_description = "В избранном"
+    count_favorites.short_description = "В избранном"
 
 
 @admin.register(Ingredient)
@@ -41,7 +65,11 @@ class IngredientAdmin(admin.ModelAdmin):
         "name",
         "measurement_unit",
     )
+    search_fields = ("name",)
     list_filter = ("name",)
+    empty_value_display = EMPTY_VALUE_DISPLAY
+
+    save_on_top = True
 
 
 @admin.register(Tag)
@@ -51,6 +79,10 @@ class TagAdmin(admin.ModelAdmin):
         "color",
         "slug",
     )
+    empty_value_display = EMPTY_VALUE_DISPLAY
+    search_fields = ("name", "color")
+
+    save_on_top = True
 
 
 @admin.register(ShoppingCart)
@@ -59,6 +91,10 @@ class ShoppingCartAdmin(admin.ModelAdmin):
         "user",
         "recipe",
     )
+    search_fields = ("user__username", "recipe__name")
+    empty_value_display = EMPTY_VALUE_DISPLAY
+
+    save_on_top = True
 
 
 @admin.register(Favorite)
@@ -66,7 +102,12 @@ class FavoriteAdmin(admin.ModelAdmin):
     list_display = (
         "user",
         "recipe",
+        "date_added",
     )
+    search_fields = ("user__username", "recipe__name")
+    empty_value_display = EMPTY_VALUE_DISPLAY
+
+    save_on_top = True
 
 
 @admin.register(AmountIngredient)
@@ -76,3 +117,6 @@ class AmountIngredientAdmin(admin.ModelAdmin):
         "ingredient",
         "amount",
     )
+    empty_value_display = EMPTY_VALUE_DISPLAY
+
+    save_on_top = True

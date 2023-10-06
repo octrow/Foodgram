@@ -1,5 +1,4 @@
-from enum import Enum, IntEnum
-
+from enum import IntEnum
 
 class Limits(IntEnum):
     MAX_LEN_254 = 254

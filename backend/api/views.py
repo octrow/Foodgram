@@ -1,12 +1,12 @@
 import io
 
-from django.db.models import F, Sum
+from django.db.models import Sum
 from django.http import FileResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, get_list_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import permissions, status, viewsets
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.permissions import (SAFE_METHODS, IsAuthenticated,
                                         IsAuthenticatedOrReadOnly)
 from rest_framework.response import Response
@@ -35,8 +35,8 @@ class CustomUserViewSet(UserViewSet):
         return super().get_permissions()
 
     @action(detail=True, methods=['post', 'delete'], permission_classes=[permissions.IsAuthenticated])
-    def subscribe(self, request, id=None):
-        author = get_object_or_404(CustomUser, id=id)
+    def subscribe(self, request, user_id=None):
+        author = get_object_or_404(CustomUser, id=user_id)
         subscription = Subscription.objects.filter(user=request.user, author=author)
         if request.method == 'POST':
             if subscription.exists():
@@ -61,7 +61,8 @@ class CustomUserViewSet(UserViewSet):
     @action(detail=False, permission_classes=[permissions.IsAuthenticated])
     def subscriptions(self, request):
         user = request.user
-        subscriptions = CustomUser.objects.filter(subscriptions__user=user)
+        # subscriptions = CustomUser.objects.filter(subscriptions__user=user)
+        subscriptions = get_list_or_404(CustomUser, subscriptions__user=user)
         page = self.paginate_queryset(subscriptions)
         serializer = SubscribeSerializer(
             page, many=True,
@@ -83,6 +84,25 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [permissions.AllowAny]
     pagination_class = None
 
+    # @action(methods=("post",), detail=False, permission_classes=[permissions.IsAuthenticated])
+    # def create_tag(request):
+    #     serializer = TagSerializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     serializer.save()
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #
+    # @action(methods=('PUT', 'PATCH', 'DELETE'), detail=True, permission_classes=[permissions.IsAuthenticated])
+    # def update_delete_tag(request, tag_id):
+    #     tag = get_object_or_404(Tag, id=tag_id)
+    #     if request.method == 'PUT' or request.method == 'PATCH':
+    #         serializer = TagSerializer(tag, data=request.data, partial=True)
+    #         serializer.is_valid(raise_exception=True)
+    #         serializer.save()
+    #         return Response(serializer.data)
+    #     if request.method == 'DELETE':
+    #         tag.delete()
+    #         return Response(status=status.HTTP_204_NO_CONTENT)
+
 class RecipeViewSet(AuthorFilterMixin, viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = [AuthorAdminOrReadOnly]
@@ -96,7 +116,7 @@ class RecipeViewSet(AuthorFilterMixin, viewsets.ModelViewSet):
         return RecipeCreateSerializer
 
 
-    def action_post_delete(self, pk, serializer_class):
+    def post_or_delete(self, pk, serializer_class):
         user = self.request.user
         if self.request.method == 'POST':
 
@@ -126,34 +146,27 @@ class RecipeViewSet(AuthorFilterMixin, viewsets.ModelViewSet):
 
     @action(detail=True, methods=['post', 'delete'], permission_classes=[permissions.IsAuthenticated])
     def favorite(self, request, pk=None):
-        return self.action_post_delete(pk, FavoriteCreateDeleteSerializer)
+        return self.post_or_delete(pk, FavoriteCreateDeleteSerializer)
 
     @action(detail=True, methods=['post', 'delete'], permission_classes=[permissions.IsAuthenticated])
     def shopping_cart(self, request, pk=None):
-        return self.action_post_delete(pk, ShoppingCartCreateDeleteSerializer)
+        return self.post_or_delete(pk, ShoppingCartCreateDeleteSerializer)
 
 
     @action(methods=("get",), detail=False)
     def download_shopping_cart(self, request):
         shopping_cart = (
-            AmountIngredient.objects.filter(
-                recipe__shopping_cart__user=request.user
-            )
-            .values('ingredient__name',
-                    'ingredient__measurement_unit', )
+            AmountIngredient.objects.select_related("recipe", "ingredient")
+            .filter(recipe__shopping_cart__user=request.user)
+            .values_list('ingredient__name', 'ingredient__measurement_unit', )
             .annotate(amount=Sum('amount'))
             .order_by('ingredient__name')
         )
-
         buffer = io.StringIO()
-
-        for item in shopping_cart:
-            buffer.write(f"{item['ingredient__name']}\t")
-            buffer.write(f"{item['amount']}\t")
-            buffer.write(f"{item['ingredient__measurement_unit']} \n")
-
+        buffer.write("\n".join("\t".join(map(str, item)) for item in shopping_cart))
         response = FileResponse(buffer.getvalue(), content_type='text/plain')
         response[
             'Content-Disposition'] = 'attachment; filename="shopping_cart.txt"'
         return response
+
 
