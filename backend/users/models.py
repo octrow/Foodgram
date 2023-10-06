@@ -29,6 +29,7 @@ class CustomUser(AbstractUser):
     )
     username = models.CharField(
         verbose_name="Никнейм",
+        unique=True,
         max_length=Limits.MAX_LEN_150.value,
         help_text=texts.CUSTOM_USER_USERNAME_HELP_TEXT,
     )
@@ -56,13 +57,13 @@ class CustomUser(AbstractUser):
 class Subscription(models.Model):
     user = models.ForeignKey(
         CustomUser,
-        related_name="subscriptions", #подписки. user = CustomUser.objects.get(id=1) user.subscriptions.all() # Возвращает QuerySet всех подписок пользователя с id=1
+        related_name="subscriptions",
         on_delete=models.CASCADE,
         verbose_name="Подписчик",
     )
     author = models.ForeignKey(
         CustomUser,
-        related_name="subscribers", #подписчики. author = CustomUser.objects.get(id=2) author.subscribers.all() # Возвращает QuerySet всех подписчиков пользователя с id=2
+        related_name="subscribers",
         on_delete=models.CASCADE,
         verbose_name="Автор",
     )

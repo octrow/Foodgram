@@ -2,14 +2,8 @@ from django.contrib import admin
 from django.contrib.admin import display
 from django.utils.safestring import mark_safe
 
-from .models import (
-    AmountIngredient,
-    Favorite,
-    Ingredient,
-    Recipe,
-    ShoppingCart,
-    Tag,
-)
+from .models import (AmountIngredient, Favorite, Ingredient, Recipe,
+                     ShoppingCart, Tag)
 
 admin.site.site_header = "Администрирование Foodgram"
 

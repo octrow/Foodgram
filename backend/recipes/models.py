@@ -1,9 +1,8 @@
-# from colorfield.fields import ColorField
 from django.contrib.auth import get_user_model
-from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
+from django.core.validators import (MaxValueValidator, MinValueValidator,
+                                    RegexValidator)
 from django.db import models
 from django.db.models.functions import Length
-# from djfractions.forms import DecimalFractionField
 
 from core import texts
 from core.limits import Limits
@@ -146,14 +145,6 @@ class AmountIngredient(models.Model):
         verbose_name="Ингредиент",
         help_text=texts.AMOUNT_INGREDIENT_INGREDIENT_HELP_TEXT,
     )
-    # amount = DecimalFractionField(
-    #     "Количество",
-    #     max_digits=5,
-    #     decimal_places=2,
-    #     # default=0, не поддерживается
-    #     validators=[MinValueValidator(1, message="Минимум 1!")],
-    #     help_text=texts.AMOUNT_INGREDIENT_AMOUNT_HELP_TEXT,
-    # )
     amount = models.PositiveSmallIntegerField(
         verbose_name='Количество',
         default=0,
@@ -167,6 +158,7 @@ class AmountIngredient(models.Model):
         verbose_name = "Ингредиент в рецепте"
         verbose_name_plural = "Ингредиенты рецепта"
         ordering = ("recipe",)
+
 
     def __str__(self):
         return f"{self.ingredient.name} ({self.ingredient.measurement_unit}) - {self.amount} "

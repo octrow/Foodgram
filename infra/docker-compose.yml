@@ -22,7 +22,7 @@ services:
 
     backend:
       container_name: foodgram_backend
-#      image: octrow/foodgram_backend:latest
+      # image: octrow/foodgram_backend:latest
       build:
         context: ../backend
         dockerfile: Dockerfile
@@ -69,21 +69,21 @@ services:
       networks:
         - foodgram-network
 
-    dredd: # тестирование API
-      container_name: foodgram_dredd
-      image: apiaryio/dredd:latest
-      depends_on:
-        - db
-        - backend
-        - nginx
-      environment:
-       # - DREDD_APIARY_API_KEY=your_apiary_api_key # optional, if you want to use Apiary reporter
-       # - DREDD_API_DESCRIPTION_URL=/usr/share/nginx/html/api/docs/ # the URL of your API description file
-       # - DREDD_API_ENDPOINT=http://nginx/ # the base URL of your API
-       # - DREDD_HOOKFILES=./hooks/*.py # the path to your hooks files, if any
-        - DREDD_OPTIONS= --reporter=html --output=./report.html # other options for dredd
-      volumes:
-        - ./openapi-schema.yml:/api/openapi-schema.yml
-        - ./hooks/:/app/hooks/ # mount your hooks directory to the container
-        - ./report.html:/app/report.html # mount your report file to the container
-      command: dredd /api/openapi-schema.yml http://backend:8000
+#    dredd: # тестирование API
+#      container_name: foodgram_dredd
+#      image: apiaryio/dredd:latest
+#      depends_on:
+#        - db
+#        - backend
+#        - nginx
+#      environment:
+#       # - DREDD_APIARY_API_KEY=your_apiary_api_key # optional, if you want to use Apiary reporter
+#       # - DREDD_API_DESCRIPTION_URL=/usr/share/nginx/html/api/docs/ # the URL of your API description file
+#       # - DREDD_API_ENDPOINT=http://nginx/ # the base URL of your API
+#       # - DREDD_HOOKFILES=./hooks/*.py # the path to your hooks files, if any
+#        - DREDD_OPTIONS= --reporter=html --output=./report.html # other options for dredd
+#      volumes:
+#        - ./openapi-schema.yml:/api/openapi-schema.yml
+#        - ./hooks/:/app/hooks/ # mount your hooks directory to the container
+#        - ./report.html:/app/report.html # mount your report file to the container
+#      command: dredd /api/openapi-schema.yml http://backend:8000
