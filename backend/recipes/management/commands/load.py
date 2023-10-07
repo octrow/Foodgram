@@ -3,7 +3,14 @@ import json
 from django.core.management.base import BaseCommand, CommandError
 
 from foodgram import settings
-from recipes.models import Ingredient, Tag, Recipe, ShoppingCart, AmountIngredient, Favorite
+from recipes.models import (
+    Ingredient,
+    Tag,
+    Recipe,
+    ShoppingCart,
+    AmountIngredient,
+    Favorite,
+)
 from users.models import CustomUser, Subscription
 
 
@@ -11,16 +18,22 @@ class Command(BaseCommand):
     help = "Загрузить данные в модели ингредиентов и тегов"
 
     def add_arguments(self, parser):
-        parser.add_argument("-f", "--files",
+        parser.add_argument(
+            "-f",
+            "--files",
             nargs="+",
             type=str,
             default=["ingredients.json", "tags.json"],
-            help="Файлы с данными для загрузки")
-        parser.add_argument("-m", "--models",
+            help="Файлы с данными для загрузки",
+        )
+        parser.add_argument(
+            "-m",
+            "--models",
             nargs="+",
             type=str,
             default=["Ingredient", "Tag"],
-            help="Модели для загрузки данных")
+            help="Модели для загрузки данных",
+        )
 
     def load_data(self, file_name, model):
         with open(
@@ -35,7 +48,9 @@ class Command(BaseCommand):
         files = kwargs["files"]
         models = kwargs["models"]
         if len(files) != len(models):
-            raise CommandError("Количество файлов и моделей должно быть одинаковым")
+            raise CommandError(
+                "Количество файлов и моделей должно быть одинаковым"
+            )
         model_dict = {
             "Ingredient": Ingredient,
             "Tag": Tag,

@@ -1,6 +1,9 @@
 from django.contrib.auth import get_user_model
-from django.core.validators import (MaxValueValidator, MinValueValidator,
-                                    RegexValidator)
+from django.core.validators import (
+    MaxValueValidator,
+    MinValueValidator,
+    RegexValidator,
+)
 from django.db import models
 from django.db.models.functions import Length
 
@@ -46,9 +49,10 @@ class Tag(models.Model):
         unique=True,
         validators=[
             RegexValidator(
-                regex='^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
-                message='Введенное значение не является цветом в формате HEX!'
-            )],
+                regex="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$",
+                message="Введенное значение не является цветом в формате HEX!",
+            )
+        ],
         help_text=texts.TAG_COLOR_HELP_TEXT,
     )
     slug = models.SlugField(
@@ -146,22 +150,22 @@ class AmountIngredient(models.Model):
         help_text=texts.AMOUNT_INGREDIENT_INGREDIENT_HELP_TEXT,
     )
     amount = models.PositiveSmallIntegerField(
-        verbose_name='Количество',
+        verbose_name="Количество",
         default=0,
         help_text=texts.AMOUNT_INGREDIENT_AMOUNT_HELP_TEXT,
-        validators=(MinValueValidator(
-            1,
-            message='Должно быть больше нуля'),
-        ))
+        validators=(MinValueValidator(1, message="Должно быть больше нуля"),),
+    )
 
     class Meta:
         verbose_name = "Ингредиент в рецепте"
         verbose_name_plural = "Ингредиенты рецепта"
         ordering = ("recipe",)
 
-
     def __str__(self):
-        return f"{self.ingredient.name} ({self.ingredient.measurement_unit}) - {self.amount} "
+        return (
+            f"{self.ingredient.name} ({self.ingredient.measurement_unit}) - "
+            f"{self.amount} "
+        )
 
 
 class Favorite(models.Model):

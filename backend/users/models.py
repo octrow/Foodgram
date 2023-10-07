@@ -46,7 +46,9 @@ class CustomUser(AbstractUser):
         constraints = (
             models.UniqueConstraint(
                 fields=("username", "email"),
-                name="\n%(app_label)s_%(class)s username and email must be unique\n",
+                name=(
+                    "\n%(app_label)s_%(class)s username and "
+                    "email must be unique\n"),
             ),
         )
 
@@ -79,7 +81,9 @@ class Subscription(models.Model):
         constraints = (
             models.UniqueConstraint(
                 fields=("user", "author"),
-                name="\n%(app_label)s_%(class)s user cannot subscribe to same author twice\n",
+                name=(
+                    "\n%(app_label)s_%(class)s user cannot subscribe "
+                    "to same author twice\n"),
             ),
         )
 
