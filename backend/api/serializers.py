@@ -117,9 +117,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class AmountIngredientSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(
-        queryset=Ingredient.objects.all(),
-    )
+    id = serializers.ReadOnlyField(source="ingredient.id")
     name = serializers.ReadOnlyField(source="ingredient.name")
     measurement_unit = serializers.ReadOnlyField(
         source="ingredient.measurement_unit"
@@ -128,6 +126,15 @@ class AmountIngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = AmountIngredient
         fields = ("id", "name", "measurement_unit", "amount")
+
+
+class CreateAmountIngredientSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(write_only=True)
+    amount = serializers.IntegerField(min_value=1)
+
+    class Meta:
+        fields = ("id", "amount")
+        model = AmountIngredient
 
 
 class BaseRecipeSerializer(
@@ -157,23 +164,9 @@ class BaseRecipeSerializer(
             "cooking_time",
         )
 
-    def get_ingredients(self, recipe, ingredients):
-        AmountIngredient.objects.bulk_create(
-            AmountIngredient(
-                recipe=recipe,
-                ingredient=ingredient.get("ingredient"),
-                amount=ingredient.get("amount"),
-            )
-            for ingredient in ingredients
-        )
-
 
 class RecipeReadSerializer(BaseRecipeSerializer):
     image = Base64ImageField()
-    ingredients = AmountIngredientSerializer(
-        many=True, source="recipe_ingredient", read_only=True
-    )
-    tags = TagSerializer(many=True, read_only=True)
 
     class Meta(BaseRecipeSerializer.Meta):
         pass
@@ -181,35 +174,44 @@ class RecipeReadSerializer(BaseRecipeSerializer):
 
 class RecipeCreateSerializer(BaseRecipeSerializer):
     image = Base64ImageField()
-    ingredients = AmountIngredientSerializer(many=True)
+    ingredients = CreateAmountIngredientSerializer(many=True, write_only=True)
     tags = serializers.SlugRelatedField(
         slug_field="id", queryset=Tag.objects.all(), many=True
     )
-    author = CustomUserSerializer(read_only=True)
 
     class Meta(BaseRecipeSerializer.Meta):
         pass
 
     def validate(self, validated_data):
-        name = validated_data.get("name")
-        if len(name) > 150:
+        if len(validated_data.get("name")) > 150:
             raise serializers.ValidationError(
                 {"name": "Название должно быть короче 150 символов!"}
             )
-        image = validated_data.get("image")
-        if not image:
+        if validated_data.get("cooking_time") < 1:
+            raise serializers.ValidationError(
+                "Время приготовления должно быть не меньше 1 минуты!"
+            )
+        if not self.instance and not validated_data.get("image"):
             raise serializers.ValidationError(
                 {"image": "Поле изображения не может быть пустым!"}
             )
         ingredients = validated_data.get("ingredients")
-        if not ingredients:
+        if not ingredients or len(ingredients) == 0:
             raise serializers.ValidationError(
                 {"ingredients": "Поле ингредиентов не может быть пустым!"}
             )
-        ingredient_ids = set(ingredient["id"] for ingredient in ingredients)
+        ingredient_ids = set(
+            ingredient.get("id") for ingredient in ingredients
+        )
         if len(ingredient_ids) != len(ingredients):
             raise serializers.ValidationError(
                 {"ingredients": "Ингридиенты не должны повторяться!"}
+            )
+        if Ingredient.objects.filter(id__in=ingredient_ids).count() != len(
+            ingredients
+        ):
+            raise serializers.ValidationError(
+                {"ingredients": "Некоторые ингридиенты не существуют!"}
             )
         tags = validated_data.get("tags")
         if not tags:
@@ -223,41 +225,53 @@ class RecipeCreateSerializer(BaseRecipeSerializer):
             )
         return validated_data
 
-    @staticmethod
-    def create_ingredients(recipe, ingredients):
-        ingredient_list = []
-        for ingredient_data in ingredients:
-            ingredient_list.append(
-                AmountIngredient(
-                    ingredient=ingredient_data.pop("id"),
-                    amount=ingredient_data.pop("amount"),
-                    recipe=recipe,
-                )
+    @transaction.atomic
+    def create_ingredients(self, recipe, ingredients):
+        ingredient_counts = {
+            ingredient["id"]: ingredient["amount"]
+            for ingredient in ingredients
+        }
+        create_ingredients = [
+            AmountIngredient(
+                recipe=recipe, ingredient_id=ingredient_id, amount=amount
             )
-        AmountIngredient.objects.bulk_create(ingredient_list)
+            for ingredient_id, amount in ingredient_counts.items()
+        ]
+        AmountIngredient.objects.bulk_create(create_ingredients)
 
     @transaction.atomic
     def create(self, validated_data):
-        request = self.context.get("request", None)
+        current_user = self.context["request"].user
         tags = validated_data.pop("tags")
         ingredients = validated_data.pop("ingredients")
-        recipe = Recipe.objects.create(author=request.user, **validated_data)
+        recipe = Recipe.objects.create(**validated_data, author=current_user)
         recipe.tags.set(tags)
         self.create_ingredients(recipe, ingredients)
         return recipe
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        instance.tags.clear()
-        AmountIngredient.objects.filter(recipe=instance).delete()
-        instance.tags.set(validated_data.pop("tags"))
+        tags = validated_data.pop("tags")
         ingredients = validated_data.pop("ingredients")
-        self.create_ingredients(instance, ingredients)
-        return super().update(instance, validated_data)
+        if validated_data.get("image") is not None:
+            instance.image = validated_data.pop("image")
+        instance = super().update(instance, validated_data)
+        if tags:
+            instance.tags.clear()
+            instance.tags.set(tags)
+        if ingredients:
+            instance.ingredients.clear()
+            self.create_ingredients(instance, ingredients)
+        if (
+            instance.image is not None
+            and validated_data.get("image") is not None
+        ):
+            instance.image.delete()
+        return instance
 
-    def to_representation(self, instance):
+    def to_representation(self, recipe):
         context = {"request": self.context.get("request")}
-        return RecipeReadSerializer(instance, context=context).data
+        return RecipeReadSerializer(recipe, context=context).data
 
 
 class RecipeShortSerializer(BaseRecipeSerializer):

@@ -1,8 +1,9 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import CustomUser, Subscription
 from core.texts import EMPTY_VALUE_DISPLAY
+
+from .models import CustomUser, Subscription
 
 
 @admin.register(CustomUser)

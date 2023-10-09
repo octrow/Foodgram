@@ -3,14 +3,8 @@ import json
 from django.core.management.base import BaseCommand, CommandError
 
 from foodgram import settings
-from recipes.models import (
-    Ingredient,
-    Tag,
-    Recipe,
-    ShoppingCart,
-    AmountIngredient,
-    Favorite,
-)
+from recipes.models import (AmountIngredient, Favorite, Ingredient, Recipe,
+                            ShoppingCart, Tag)
 from users.models import CustomUser, Subscription
 
 

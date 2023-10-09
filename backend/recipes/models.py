@@ -151,7 +151,6 @@ class AmountIngredient(models.Model):
     )
     amount = models.PositiveSmallIntegerField(
         verbose_name="Количество",
-        default=0,
         help_text=texts.AMOUNT_INGREDIENT_AMOUNT_HELP_TEXT,
         validators=(MinValueValidator(1, message="Должно быть больше нуля"),),
     )

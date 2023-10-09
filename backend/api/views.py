@@ -2,7 +2,7 @@ import io
 
 from django.db.models import Sum
 from django.http import FileResponse
-from django.shortcuts import get_object_or_404, get_list_or_404
+from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import permissions, status, viewsets
@@ -46,8 +46,9 @@ class CustomUserViewSet(UserViewSet):
         methods=["post", "delete"],
         permission_classes=[permissions.IsAuthenticated],
     )
-    def subscribe(self, request, user_id=None):
-        author = get_object_or_404(CustomUser, id=user_id)
+    def subscribe(self, request, id=None):
+        author_id = self.kwargs.get("id")  # ждёт тестов
+        author = get_object_or_404(CustomUser, id=author_id)
         subscription = Subscription.objects.filter(
             user=request.user, author=author
         )
@@ -79,9 +80,9 @@ class CustomUserViewSet(UserViewSet):
 
     @action(detail=False, permission_classes=[permissions.IsAuthenticated])
     def subscriptions(self, request):
-        user = request.user
-        # subscriptions = CustomUser.objects.filter(subscriptions__user=user)
-        subscriptions = get_list_or_404(CustomUser, subscriptions__user=user)
+        subscriptions = CustomUser.objects.filter(
+            subscribers__user=request.user
+        )
         page = self.paginate_queryset(subscriptions)
         serializer = SubscribeSerializer(
             page, many=True, context={"request": request}
@@ -103,27 +104,6 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = TagSerializer
     permission_classes = [permissions.AllowAny]
     pagination_class = None
-
-    # @action(methods=("post",), detail=False,
-    # permission_classes=[permissions.IsAuthenticated])
-    # def create_tag(request):
-    #     serializer = TagSerializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     serializer.save()
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED)
-    #
-    # @action(methods=('PUT', 'PATCH', 'DELETE'), detail=True,
-    # permission_classes=[permissions.IsAuthenticated])
-    # def update_delete_tag(request, tag_id):
-    #     tag = get_object_or_404(Tag, id=tag_id)
-    #     if request.method == 'PUT' or request.method == 'PATCH':
-    #         serializer = TagSerializer(tag, data=request.data, partial=True)
-    #         serializer.is_valid(raise_exception=True)
-    #         serializer.save()
-    #         return Response(serializer.data)
-    #     if request.method == 'DELETE':
-    #         tag.delete()
-    #         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class RecipeViewSet(AuthorFilterMixin, viewsets.ModelViewSet):
