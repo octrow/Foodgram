@@ -14,6 +14,8 @@ class UserAdmin(UserAdmin):
         "first_name",
         "last_name",
         "is_active",
+        "get_recipes_count",
+        "get_subscribers_count",
     )
     list_filter = ("email", "first_name", "is_active")
     search_fields = (
@@ -23,6 +25,14 @@ class UserAdmin(UserAdmin):
     empty_value_display = '-пусто-'
 
     save_on_top = True
+
+    @admin.display(description='Количество рецептов')
+    def get_recipes_count(self, obj):
+        return obj.recipes.count()
+
+    @admin.display(description='Количество подписчиков')
+    def get_subscribers_count(self, obj):
+        return obj.followed_by.count()
 
 
 @admin.register(Subscription)
