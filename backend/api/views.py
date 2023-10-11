@@ -29,10 +29,10 @@ class UserViewSet(UserViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     pagination_class = CustomPagination
 
-    def get_permissions(self):
-        if self.action == "me":
-            self.permission_classes = (IsAuthenticated,)
-        return super().get_permissions()
+    @action(detail=False, permission_classes=[IsAuthenticated])
+    def me(self, request):
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)
 
     @action(
         detail=True,
@@ -62,7 +62,8 @@ class UserViewSet(UserViewSet):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    @action(detail=False, permission_classes=[permissions.IsAuthenticated])
+    @action(detail=False, methods=['get'],
+            permission_classes=[permissions.IsAuthenticated])
     def subscriptions(self, request):
         subscriptions = User.objects.filter(
             followed_by__user=request.user

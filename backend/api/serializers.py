@@ -235,6 +235,10 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"image": "Поле изображения не может быть пустым!"}
             )
+        if self.instance and not self.instance.images:
+            raise serializers.ValidationError(
+                {"image": "Поле изображения не может быть пустым!"}
+            )
         return image
 
     @staticmethod
@@ -265,7 +269,6 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
         instance.ingredients.clear()
         ingredients = validated_data.pop("ingredients")
         self.create_ingredients(instance, ingredients)
-        instance.image.delete()
         return super().update(instance, validated_data)
 
     def to_representation(self, recipe):
