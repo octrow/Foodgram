@@ -72,12 +72,7 @@ DATABASES = {
         "PORT": os.getenv("DB_PORT", 5432),
     }
 }
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": "mydatabase",
-#     }
-# }
+
 AUTH_USER_MODEL = "users.User"
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -140,7 +135,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-#### CONSTANTS ####
+# CONSTANTS
 
 MAX_LEN_EMAIL = 254
 MAX_LEN_NAME = 150
