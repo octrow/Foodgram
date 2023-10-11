@@ -80,7 +80,6 @@ DATABASES = {
 }
 AUTH_USER_MODEL = "users.User"
 
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -103,9 +102,6 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",
     ],
-    # "DEFAULT_FILTER_BACKENDS": [
-    #     "django_filters.rest_framework.DjangoFilterBackend"
-    # ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 6,
     "PAGINATE_BY_PARAM": "limit",
@@ -134,7 +130,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 STATIC_URL = "/static/"
 
 STATIC_ROOT = BASE_DIR / "collected_static"
@@ -154,8 +149,6 @@ MIN_VALUE = 1
 MAX_VALUE = 32767
 MAX_HEX = 7
 
-# admin
-# EMPTY_VALUE_DISPLAY = '-пусто-'
 # users/models
 CUSTOM_USER_EMAIL_HELP_TEXT = "Введите вашу электронную почту"
 CUSTOM_USER_FIRST_NAME_HELP_TEXT = "Введите ваше имя"
@@ -202,28 +195,3 @@ SHOPPING_CART_USER_HELP_TEXT = (
 SHOPPING_CART_RECIPE_HELP_TEXT = (
     "Выберите рецепт, который был добавлен в корзину"
 )
-####################################### debug
-
-LOGGING_CONFIG = None
-
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "console": {
-            "class": "loguru._handler.StreamHandler",
-            "level": "DEBUG",
-        },
-        "file": {
-            "class": "loguru._handler._AsyncFileHandler",
-            "filename": "/var/log/myapp.log",
-            "level": "DEBUG",
-        },
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["console", "file"],
-            "level": "INFO",
-        },
-    },
-}

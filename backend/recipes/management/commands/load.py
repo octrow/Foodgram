@@ -1,11 +1,11 @@
 import json
 
+from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
-from django.conf import settings
 from recipes.models import (AmountIngredient, Favorite, Ingredient, Recipe,
                             ShoppingCart, Tag)
-from users.models import User, Subscription
+from users.models import Subscription, User
 
 
 class Command(BaseCommand):

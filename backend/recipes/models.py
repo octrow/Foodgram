@@ -1,14 +1,11 @@
 from colorfield.fields import ColorField
-from django.core.validators import (
-    MaxValueValidator,
-    MinValueValidator,
-)
+from django.conf import settings
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models.functions import Length
-from django.conf import settings
-
 
 from users.models import User
+
 models.CharField.register_lookup(Length)
 
 
@@ -97,8 +94,10 @@ class Recipe(models.Model):
     cooking_time = models.PositiveSmallIntegerField(
         "Время приготовления",
         validators=[
-            MinValueValidator(settings.MIN_VALUE, message=f"Минимум {settings.MIN_VALUE} минута!"),
-            MaxValueValidator(settings.MAX_VALUE, message=f"Максимум {settings.MAX_VALUE} минут!"),
+            MinValueValidator(settings.MIN_VALUE,
+                              message=f"Минимум {settings.MIN_VALUE} минута!"),
+            MaxValueValidator(settings.MAX_VALUE,
+                              message=f"Максимум {settings.MAX_VALUE} минут!"),
         ],
         help_text=settings.RECIPE_COOKING_TIME_HELP_TEXT,
     )
@@ -151,10 +150,11 @@ class AmountIngredient(models.Model):
         help_text=settings.AMOUNT_INGREDIENT_AMOUNT_HELP_TEXT,
         validators=(
             MinValueValidator(
-                settings.MIN_VALUE, message=f"Должно быть {settings.MIN_VALUE} и больше"),
-        MaxValueValidator(
-            settings.MAX_VALUE, 
-            message="Число должно быть меньше чем {settings.MAX_VALUE}")),
+                settings.MIN_VALUE,
+                message=f"Должно быть {settings.MIN_VALUE} и больше"),
+            MaxValueValidator(
+                settings.MAX_VALUE,
+                message="Число должно быть меньше чем {settings.MAX_VALUE}")),
     )
 
     class Meta:
@@ -167,6 +167,7 @@ class AmountIngredient(models.Model):
             f"{self.ingredient.name} ({self.ingredient.measurement_unit}) - "
             f"{self.amount} "
         )
+
 
 class UserRecipeRelation(models.Model):
     user = models.ForeignKey(
@@ -188,9 +189,10 @@ class UserRecipeRelation(models.Model):
             models.UniqueConstraint(
                 fields=("user", "recipe"),
                 name=("\n%(app_label)s_%(class)s recipe is"
-                " already related to user\n"),
+                      " already related to user\n"),
             ),
         )
+
 
 class Favorite(UserRecipeRelation):
     date_added = models.DateTimeField(
@@ -198,12 +200,14 @@ class Favorite(UserRecipeRelation):
         auto_now_add=True,
         editable=False,
     )
+
     class Meta(UserRecipeRelation.Meta):
         verbose_name = "Избранный рецепт"
         verbose_name_plural = "Избранные рецепты"
 
     def __str__(self) -> str:
         return f'{self.user} добавил "{self.recipe}" в Избранное'
+
 
 class ShoppingCart(UserRecipeRelation):
     class Meta(UserRecipeRelation.Meta):
@@ -212,4 +216,3 @@ class ShoppingCart(UserRecipeRelation):
 
     def __str__(self):
         return f"{self.recipe} в корзине у {self.user}"
-

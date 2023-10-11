@@ -1,9 +1,8 @@
-from django.contrib.auth.models import AbstractUser
-from django.core.validators import EmailValidator, RegexValidator
-from django.core.exceptions import PermissionDenied
-from django.db import models
 from django.conf import settings
-
+from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import PermissionDenied
+from django.core.validators import EmailValidator, RegexValidator
+from django.db import models
 
 
 class User(AbstractUser):
@@ -41,12 +40,10 @@ class User(AbstractUser):
             )]
     )
 
-
     class Meta:
         verbose_name = "Пользователь"
         verbose_name_plural = "Пользователи"
         ordering = ("username",)
-
 
     def __str__(self) -> str:
         return f"{self.username}: {self.email}"
@@ -65,7 +62,6 @@ class Subscription(models.Model):
         on_delete=models.CASCADE,
         verbose_name="Автор",
     )
-
 
     class Meta:
         verbose_name = "Подписка"

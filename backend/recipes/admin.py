@@ -1,6 +1,6 @@
 from django.conf import settings
-from django.contrib.auth.models import Group
 from django.contrib import admin
+from django.contrib.auth.models import Group
 from django.utils.safestring import mark_safe
 
 from .models import (AmountIngredient, Favorite, Ingredient, Recipe,
@@ -61,14 +61,15 @@ class RecipeAdmin(admin.ModelAdmin):
     def count_favorites(self, obj):
         return obj.recipes_favorite_related.count()
 
-
     @admin.display(description="Ингредиенты")
     def get_ingredients(self, obj):
         ingredients = obj.ingredients.all()
-        ingredients_str = ", ".join(ingredient.name for ingredient in ingredients)
+        ingredients_str = ", ".join(
+            ingredient.name for ingredient in ingredients)
         return ingredients_str
 
     list_display_links = ("name", "author")
+
 
 @admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
