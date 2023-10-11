@@ -1,3 +1,7 @@
+# дополнительные исключения
+.vscode
+postman-collection
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

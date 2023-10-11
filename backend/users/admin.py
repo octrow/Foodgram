@@ -1,12 +1,11 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from core.texts import EMPTY_VALUE_DISPLAY
 
-from .models import CustomUser, Subscription
+from .models import User, Subscription
 
 
-@admin.register(CustomUser)
+@admin.register(User)
 class UserAdmin(UserAdmin):
     list_display = (
         "username",
@@ -21,7 +20,7 @@ class UserAdmin(UserAdmin):
         "username",
         "email",
     )
-    empty_value_display = EMPTY_VALUE_DISPLAY
+    empty_value_display = '-пусто-'
 
     save_on_top = True
 
@@ -31,6 +30,6 @@ class SubscriptionAdmin(admin.ModelAdmin):
     list_display = ("id", "user", "author")
     search_fields = ("user", "author")
     list_filter = ("user", "author")
-    empty_value_display = EMPTY_VALUE_DISPLAY
+    empty_value_display = '-пусто-'
 
     save_on_top = True

@@ -2,10 +2,10 @@ import json
 
 from django.core.management.base import BaseCommand, CommandError
 
-from foodgram import settings
+from django.conf import settings
 from recipes.models import (AmountIngredient, Favorite, Ingredient, Recipe,
                             ShoppingCart, Tag)
-from users.models import CustomUser, Subscription
+from users.models import User, Subscription
 
 
 class Command(BaseCommand):
@@ -52,7 +52,7 @@ class Command(BaseCommand):
             "ShoppingCart": ShoppingCart,
             "AmountIngredient": AmountIngredient,
             "Favorite": Favorite,
-            "CustomUser": CustomUser,
+            "User": User,
             "Subscription": Subscription,
         }
         for file_name, model_name in zip(files, models):

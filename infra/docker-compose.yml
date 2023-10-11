@@ -26,6 +26,7 @@ services:
       build:
         context: ../backend
         dockerfile: Dockerfile
+      # command: cp -r /app/collected_static/. /app/static/
       restart: unless-stopped
       volumes:
         - static_value:/app/static/

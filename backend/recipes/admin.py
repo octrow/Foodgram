@@ -1,8 +1,6 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 
-from core.texts import EMPTY_VALUE_DISPLAY
-
 from .models import (AmountIngredient, Favorite, Ingredient, Recipe,
                      ShoppingCart, Tag)
 
@@ -45,7 +43,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
     inlines = (IngredientInline,)
     save_on_top = True
-    empty_value_display = EMPTY_VALUE_DISPLAY
+    empty_value_display = '-пусто-'
 
     def get_image(self, obj):
         return mark_safe(f'<img src={obj.image.url} width="80" hieght="30"')
@@ -53,7 +51,7 @@ class RecipeAdmin(admin.ModelAdmin):
     get_image.short_description = "Фотография"
 
     def count_favorites(self, obj):
-        return obj.favorite.count()
+        return obj.recipes_favorite_related.count()
 
     count_favorites.short_description = "В избранном"
 
@@ -66,7 +64,7 @@ class IngredientAdmin(admin.ModelAdmin):
     )
     search_fields = ("name",)
     list_filter = ("name",)
-    empty_value_display = EMPTY_VALUE_DISPLAY
+    empty_value_display = '-пусто-'
 
     save_on_top = True
 
@@ -78,7 +76,7 @@ class TagAdmin(admin.ModelAdmin):
         "color",
         "slug",
     )
-    empty_value_display = EMPTY_VALUE_DISPLAY
+    empty_value_display = '-пусто-'
     search_fields = ("name", "color")
 
     save_on_top = True
@@ -91,7 +89,7 @@ class ShoppingCartAdmin(admin.ModelAdmin):
         "recipe",
     )
     search_fields = ("user__username", "recipe__name")
-    empty_value_display = EMPTY_VALUE_DISPLAY
+    empty_value_display = '-пусто-'
 
     save_on_top = True
 
@@ -104,7 +102,7 @@ class FavoriteAdmin(admin.ModelAdmin):
         "date_added",
     )
     search_fields = ("user__username", "recipe__name")
-    empty_value_display = EMPTY_VALUE_DISPLAY
+    empty_value_display = '-пусто-'
 
     save_on_top = True
 
@@ -116,6 +114,6 @@ class AmountIngredientAdmin(admin.ModelAdmin):
         "ingredient",
         "amount",
     )
-    empty_value_display = EMPTY_VALUE_DISPLAY
+    empty_value_display = '-пусто-'
 
     save_on_top = True
