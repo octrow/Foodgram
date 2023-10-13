@@ -108,7 +108,7 @@ jobs:
 
   send_message:
     runs-on: ubuntu-22.04
-    needs: [deploy_dev, deploy_test, deploy_prod]
+    needs: deploy
     steps:
       - name: Telegram Message Notify
         uses: appleboy/telegram-action@master
