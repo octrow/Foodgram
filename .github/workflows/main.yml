@@ -77,7 +77,7 @@ jobs:
           context: ./${{ matrix.service }}/
 #          file: ./${{ matrix.service }}/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/{{ matrix.service }}:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/${{ matrix.service }}:latest
 
   deploy:
     runs-on: ubuntu-22.04
