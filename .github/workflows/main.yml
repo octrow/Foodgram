@@ -32,7 +32,7 @@ jobs:
 
       - name: Test with flake8
         run: |
-          python -m flake8 --ignore=I004,I001 --extend-exclude=migrations/,.git,.gitignore,*.pot,*.py[co],__pycache__,venv,.env
+          python -m flake8 --ignore=I004,I001,E121,E123,E126,E226,E24,E704,W503,W504 --extend-exclude=migrations/,.git,.gitignore,*.pot,*.py[co],__pycache__,venv,.env
 #          python manage.py test
 #      - name: Test with postman
 #        uses: matt-ball/newman-action@v3.0.1
