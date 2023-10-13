@@ -111,7 +111,7 @@ jobs:
             POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}
             DB_HOST=${{ secrets.DB_HOST }}
             DB_PORT=${{ secrets.DB_PORT }}
-            SECRET_KEY='${{ secrets.SECRET_KEY }}'
+            SECRET_KEY=${{ secrets.SECRET_KEY }}
             ALLOWED_HOSTS=${{ secrets.ALLOWED_HOSTS }}
             DEBUG=${{ secrets.DEBUG }}
             EOF
