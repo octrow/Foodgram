@@ -56,7 +56,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
     @admin.display(description="Фотография")
     def get_image(self, obj):
-        return mark_safe(f'<img src={obj.image.url} width="80" hieght="30"')
+        return mark_safe(f"<img src={obj.image.url} width='80' hieght='30'")
 
     @admin.display(description="В избранном")
     def count_favorites(self, obj):
