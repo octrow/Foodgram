@@ -93,8 +93,14 @@ jobs:
           passphrase: ${{ secrets.PROD_PASSPHRASE }}
           script: |
             sudo docker compose stop
-            sudo docker image rm ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
-            sudo docker image rm ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
+            if [ -n "$(sudo docker image ls -q ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest)" ]; then
+              sudo docker image rm ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
+            fi
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_backend
+            if [ -n "$(sudo docker image ls -q ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest)" ]; then
+              sudo docker image rm ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
+            fi
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend
             if [ -f ".env" ]; then
               rm .env
             fi 
