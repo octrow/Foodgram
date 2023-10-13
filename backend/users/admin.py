@@ -21,17 +21,17 @@ class UserAdmin(UserAdmin):
         "username",
         "email",
     )
-    empty_value_display = '-пусто-'
+    empty_value_display = "-пусто-"
 
     save_on_top = True
 
-    @admin.display(description='Количество рецептов')
+    @admin.display(description="Количество рецептов")
     def get_recipes_count(self, obj):
         return obj.recipes.count()
 
-    @admin.display(description='Количество подписчиков')
+    @admin.display(description="Количество подписчиков")
     def get_subscribers_count(self, obj):
-        return obj.followed_by.count()
+        return obj.author.count()
 
 
 @admin.register(Subscription)
@@ -39,6 +39,6 @@ class SubscriptionAdmin(admin.ModelAdmin):
     list_display = ("id", "user", "author")
     search_fields = ("user", "author")
     list_filter = ("user", "author")
-    empty_value_display = '-пусто-'
+    empty_value_display = "-пусто-"
 
     save_on_top = True

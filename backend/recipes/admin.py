@@ -1,7 +1,8 @@
-from django.conf import settings
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.utils.safestring import mark_safe
+
+from recipes.constants import MAX_VALUE, MIN_VALUE
 
 from .models import (AmountIngredient, Favorite, Ingredient, Recipe,
                      ShoppingCart, Tag)
@@ -13,8 +14,8 @@ admin.site.unregister(Group)
 class IngredientInline(admin.TabularInline):
     model = AmountIngredient
     extra = 1
-    min_num = settings.MIN_VALUE
-    max_num = settings.MAX_VALUE
+    min_num = MIN_VALUE
+    max_num = MAX_VALUE
     validate_min = True
     validate_max = True
 
@@ -51,7 +52,7 @@ class RecipeAdmin(admin.ModelAdmin):
 
     inlines = (IngredientInline,)
     save_on_top = True
-    empty_value_display = '-пусто-'
+    empty_value_display = "-пусто-"
 
     @admin.display(description="Фотография")
     def get_image(self, obj):
@@ -63,10 +64,8 @@ class RecipeAdmin(admin.ModelAdmin):
 
     @admin.display(description="Ингредиенты")
     def get_ingredients(self, obj):
-        ingredients = obj.ingredients.all()
-        ingredients_str = ", ".join(
-            ingredient.name for ingredient in ingredients)
-        return ingredients_str
+        return ", ".join(
+            ingredient.name for ingredient in obj.ingredients.all())
 
     list_display_links = ("name", "author")
 
@@ -79,7 +78,7 @@ class IngredientAdmin(admin.ModelAdmin):
     )
     search_fields = ("name",)
     list_filter = ("name",)
-    empty_value_display = '-пусто-'
+    empty_value_display = "-пусто-"
 
     save_on_top = True
 
@@ -91,7 +90,7 @@ class TagAdmin(admin.ModelAdmin):
         "color",
         "slug",
     )
-    empty_value_display = '-пусто-'
+    empty_value_display = "-пусто-"
     search_fields = ("name", "color")
     list_display_links = ("name", "color")
     save_on_top = True
@@ -104,7 +103,7 @@ class ShoppingCartAdmin(admin.ModelAdmin):
         "recipe",
     )
     search_fields = ("user__username", "recipe__name")
-    empty_value_display = '-пусто-'
+    empty_value_display = "-пусто-"
     list_display_links = ("user", "recipe")
     save_on_top = True
 
@@ -117,7 +116,7 @@ class FavoriteAdmin(admin.ModelAdmin):
         "date_added",
     )
     search_fields = ("user__username", "recipe__name")
-    empty_value_display = '-пусто-'
+    empty_value_display = "-пусто-"
     list_display_links = ("user", "recipe")
     save_on_top = True
 
@@ -129,6 +128,6 @@ class AmountIngredientAdmin(admin.ModelAdmin):
         "ingredient",
         "amount",
     )
-    empty_value_display = '-пусто-'
+    empty_value_display = "-пусто-"
     list_display_links = ("recipe", "ingredient")
     save_on_top = True

@@ -1,8 +1,14 @@
-from django.conf import settings
 from django.contrib.auth.models import AbstractUser
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import ValidationError
 from django.core.validators import EmailValidator, RegexValidator
 from django.db import models
+
+from recipes.constants import MAX_LEN_EMAIL, MAX_LEN_NAME
+
+CUSTOM_USER_EMAIL_HELP_TEXT = "Введите вашу электронную почту"
+CUSTOM_USER_FIRST_NAME_HELP_TEXT = "Введите ваше имя"
+CUSTOM_USER_LAST_NAME_HELP_TEXT = "Введите вашу фамилию"
+CUSTOM_USER_USERNAME_HELP_TEXT = "Введите уникальное имя пользователя"
 
 
 class User(AbstractUser):
@@ -12,25 +18,25 @@ class User(AbstractUser):
     email = models.EmailField(
         verbose_name="Электронная почта",
         unique=True,
-        max_length=settings.MAX_LEN_EMAIL,
+        max_length=MAX_LEN_EMAIL,
         validators=[EmailValidator],
-        help_text=settings.CUSTOM_USER_EMAIL_HELP_TEXT,
+        help_text=CUSTOM_USER_EMAIL_HELP_TEXT,
     )
     first_name = models.CharField(
         verbose_name="Имя",
-        max_length=settings.MAX_LEN_NAME,
-        help_text=settings.CUSTOM_USER_FIRST_NAME_HELP_TEXT,
+        max_length=MAX_LEN_NAME,
+        help_text=CUSTOM_USER_FIRST_NAME_HELP_TEXT,
     )
     last_name = models.CharField(
         verbose_name="Фамилия",
-        max_length=settings.MAX_LEN_NAME,
-        help_text=settings.CUSTOM_USER_LAST_NAME_HELP_TEXT,
+        max_length=MAX_LEN_NAME,
+        help_text=CUSTOM_USER_LAST_NAME_HELP_TEXT,
     )
     username = models.CharField(
         verbose_name="Никнейм",
         unique=True,
-        max_length=settings.MAX_LEN_NAME,
-        help_text=settings.CUSTOM_USER_USERNAME_HELP_TEXT,
+        max_length=MAX_LEN_NAME,
+        help_text=CUSTOM_USER_USERNAME_HELP_TEXT,
         validators=[
             RegexValidator(
                 regex=r"^[a-zA-Z0-9]+([_.-]?[a-zA-Z0-9])*$",
@@ -58,7 +64,7 @@ class Subscription(models.Model):
     )
     author = models.ForeignKey(
         User,
-        related_name="followed_by",
+        related_name="author",
         on_delete=models.CASCADE,
         verbose_name="Автор",
     )
@@ -80,5 +86,5 @@ class Subscription(models.Model):
 
     def save(self, *args, **kwargs):
         if self.user == self.author:
-            raise PermissionDenied("Нельзя подписаться на самого себя")
+            raise ValidationError("Нельзя подписаться на самого себя")
         super().save(*args, **kwargs)

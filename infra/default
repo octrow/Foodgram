@@ -1,0 +1,40 @@
+server {
+   server_name 51.250.107.180 foodgramdjango.ddns.net;
+   server_tokens off;
+
+   location / {
+       proxy_set_header        Host $host;
+       proxy_set_header        X-Real-IP $remote_addr;
+       proxy_set_header        X-Forwarded-Proto $scheme;
+       proxy_pass              http://127.0.0.1:8080;
+   }
+}
+
+server {
+    server_name 51.250.107.180 kittigram.mooo.com;
+    server_tokens off;
+
+    location / {
+        proxy_pass http://127.0.0.1:9000;
+    }
+
+
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/kittigram.mooo.com/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/kittigram.mooo.com/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+}
+
+
+server {
+    if ($host = kittigram.mooo.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    listen 80;
+    server_name 51.250.107.180 kittigram.mooo.com;
+    return 404; # managed by Certbot
+}

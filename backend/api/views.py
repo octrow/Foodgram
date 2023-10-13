@@ -2,7 +2,6 @@ import io
 
 from django.db.models import Sum
 from django.http import FileResponse
-from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser.views import UserViewSet
 from rest_framework import permissions, status, viewsets
@@ -20,7 +19,8 @@ from api.serializers import (FavoriteCreateDeleteSerializer,
                              ShoppingCartCreateDeleteSerializer,
                              SubscribeCreateSerializer, SubscribeSerializer,
                              TagSerializer)
-from recipes.models import AmountIngredient, Ingredient, Recipe, Tag
+from recipes.models import (AmountIngredient, Favorite, Ingredient, Recipe,
+                            ShoppingCart, Tag)
 from users.models import Subscription, User
 
 
@@ -29,10 +29,10 @@ class UserViewSet(UserViewSet):
     permission_classes = (IsAuthenticatedOrReadOnly,)
     pagination_class = CustomPagination
 
-    @action(detail=False, permission_classes=[IsAuthenticated])
-    def me(self, request):
-        serializer = self.get_serializer(request.user)
-        return Response(serializer.data)
+    def get_permissions(self):
+        if self.action == "me":
+            return [IsAuthenticated()]
+        return super().get_permissions()
 
     @action(
         detail=True,
@@ -40,8 +40,6 @@ class UserViewSet(UserViewSet):
         permission_classes=[permissions.IsAuthenticated],
     )
     def subscribe(self, request, id=None):
-        # это проверка, без неё .is_valid возвращает 400 автоматом
-        get_object_or_404(User, id=id)
         serializer = SubscribeCreateSerializer(
             data={"user": request.user.id, "author": id},
             context={"request": request})
@@ -51,9 +49,8 @@ class UserViewSet(UserViewSet):
 
     @subscribe.mapping.delete
     def delete_subscribe(self, request, id=None):
-        author = get_object_or_404(User, id=id)
         subscription = Subscription.objects.filter(
-            user=request.user, author=author)
+            user=request.user, author=id)
         if subscription.exists():
             subscription.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -62,11 +59,11 @@ class UserViewSet(UserViewSet):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    @action(detail=False, methods=['get'],
+    @action(detail=False, methods=["get"],
             permission_classes=[permissions.IsAuthenticated])
     def subscriptions(self, request):
         subscriptions = User.objects.filter(
-            followed_by__user=request.user
+            author__user=request.user
         )
         page = self.paginate_queryset(subscriptions)
         serializer = SubscribeSerializer(
@@ -86,13 +83,12 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    permission_classes = [permissions.AllowAny]
     pagination_class = None
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    queryset = Recipe.objects.select_related('author').prefetch_related(
-        'tags', 'ingredients')
+    queryset = Recipe.objects.select_related("author").prefetch_related(
+        "tags", "ingredients")
     permission_classes = [AuthorOrReadOnly]
     pagination_class = CustomPagination
     filter_backends = [DjangoFilterBackend]
@@ -106,7 +102,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @staticmethod
     def create_favorite_or_shoppingcart(serializer_class, id, request):
         serializer = serializer_class(
-            data={'user': request.user.id, 'recipe': id},
+            data={"user": request.user.id, "recipe": id},
             context={"request": request},
         )
         serializer.is_valid(raise_exception=True)
@@ -114,10 +110,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
     @staticmethod
-    def delete_favorite_or_shoppingcart(serializer_class, id, request):
-        recipe = get_object_or_404(Recipe, pk=id)
-        object = serializer_class.Meta.model.objects.filter(
-            user=request.user, recipe=recipe
+    def delete_favorite_or_shoppingcart(model, id, request):
+        object = model.objects.filter(
+            user=request.user, recipe_id=id
         )
         if object.exists():
             object.delete()
@@ -139,7 +134,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @favorite.mapping.delete
     def del_favorite(self, request, pk=None):
         return self.delete_favorite_or_shoppingcart(
-            FavoriteCreateDeleteSerializer, pk, request)
+            Favorite, pk, request)
 
     @action(
         detail=True,
@@ -153,7 +148,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     @shopping_cart.mapping.delete
     def del_shopping_cart(self, request, pk=None):
         return self.delete_favorite_or_shoppingcart(
-            ShoppingCartCreateDeleteSerializer, pk, request)
+            ShoppingCart, pk, request)
 
     @action(methods=("get",), detail=False)
     def download_shopping_cart(self, request):
@@ -167,6 +162,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
             .annotate(amount=Sum("amount"))
             .order_by("ingredient__name")
         )
+        return self.create_file_response(shopping_cart)
+
+    @staticmethod
+    def create_file_response(shopping_cart):
         buffer = io.StringIO()
         buffer.write(
             "\n".join("\t".join(map(str, item)) for item in shopping_cart)
