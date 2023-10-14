@@ -92,7 +92,7 @@ jobs:
           key: ${{ secrets.PROD_SSH_KEY }}
           passphrase: ${{ secrets.PROD_PASSPHRASE }}
           script: |
-            sudo docker-compose -f foodgram/infra/docker-compose.production.yml stop
+            sudo docker-compose -f foodgram/infra/docker-compose.production.yml down
             if [ -n "$(sudo docker image ls -q ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest)" ]; then
               sudo docker image rm ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
             fi
