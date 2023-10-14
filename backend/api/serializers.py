@@ -26,8 +26,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     def get_is_subscribed(self, obj):
         request = self.context.get("request")
-        return (request.user.is_anonymous
-                or not request.user.followed_users.filter(author=obj).exists())
+        return (request.user.is_authenticated
+                and request.user.followed_users.filter(author=obj).exists())
 
 
 class SubscribeSerializer(UserSerializer):
@@ -47,7 +47,7 @@ class SubscribeSerializer(UserSerializer):
         if recipes_limit and recipes_limit.isdigit():
             queryset = queryset[: int(recipes_limit)]
         return RecipeShortSerializer(
-            queryset, many=True
+            queryset, many=True, context=self.context
         ).data
 
 
@@ -193,7 +193,7 @@ class RecipeCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"ingredients": "Поле ингредиентов не может быть пустым!"}
             )
-        if (len(set(item["id"] for item in ingredients)) < len(ingredients)):
+        if (len(set(item["id"] for item in ingredients)) != len(ingredients)):
             raise serializers.ValidationError(
                 "Ингридиенты не должны повторяться!")
         tags = data.get("tags")

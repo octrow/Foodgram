@@ -5,13 +5,13 @@ from django.db import models
 
 from recipes.constants import MAX_LEN_EMAIL, MAX_LEN_NAME
 
-CUSTOM_USER_EMAIL_HELP_TEXT = "Введите вашу электронную почту"
-CUSTOM_USER_FIRST_NAME_HELP_TEXT = "Введите ваше имя"
-CUSTOM_USER_LAST_NAME_HELP_TEXT = "Введите вашу фамилию"
-CUSTOM_USER_USERNAME_HELP_TEXT = "Введите уникальное имя пользователя"
-
 
 class User(AbstractUser):
+    EMAIL_HELP_TEXT = "Введите вашу электронную почту"
+    FIRST_NAME_HELP_TEXT = "Введите ваше имя"
+    LAST_NAME_HELP_TEXT = "Введите вашу фамилию"
+    USERNAME_HELP_TEXT = "Введите уникальное имя пользователя"
+
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ("first_name", "last_name", "password", "username")
 
@@ -20,23 +20,23 @@ class User(AbstractUser):
         unique=True,
         max_length=MAX_LEN_EMAIL,
         validators=[EmailValidator],
-        help_text=CUSTOM_USER_EMAIL_HELP_TEXT,
+        help_text=EMAIL_HELP_TEXT,
     )
     first_name = models.CharField(
         verbose_name="Имя",
         max_length=MAX_LEN_NAME,
-        help_text=CUSTOM_USER_FIRST_NAME_HELP_TEXT,
+        help_text=FIRST_NAME_HELP_TEXT,
     )
     last_name = models.CharField(
         verbose_name="Фамилия",
         max_length=MAX_LEN_NAME,
-        help_text=CUSTOM_USER_LAST_NAME_HELP_TEXT,
+        help_text=LAST_NAME_HELP_TEXT,
     )
     username = models.CharField(
         verbose_name="Никнейм",
         unique=True,
         max_length=MAX_LEN_NAME,
-        help_text=CUSTOM_USER_USERNAME_HELP_TEXT,
+        help_text=USERNAME_HELP_TEXT,
         validators=[
             RegexValidator(
                 regex=r"^[a-zA-Z0-9]+([_.-]?[a-zA-Z0-9])*$",
