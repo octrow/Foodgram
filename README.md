@@ -1,5 +1,5 @@
 ## Проект Foodgram.
-![workflow](https://github.com/octrow/foodgram-project-react/actions/workflows/main.yml/badge.svg)
+![workflow](https://github.com/octrow/foodgram-project-react/actions/workflows/main_prod.yml/badge.svg)
 
 Это онлайн-сервис и API для него. На этом сервисе пользователи могут публиковать рецепты, подписываться на публикации других пользователей, добавлять понравившиеся рецепты в список «Избранное», а перед походом в магазин скачивать сводный список продуктов, необходимых для приготовления одного или нескольких выбранных блюд.
 
