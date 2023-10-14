@@ -1,20 +1,18 @@
-from django.contrib.auth import get_user_model
 from django.db import transaction
-from djoser.serializers import UserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import serializers, status
 
 from recipes.constants import MAX_VALUE, MIN_VALUE
 from recipes.models import (AmountIngredient, Favorite, Ingredient, Recipe,
                             ShoppingCart, Tag)
-from users.models import Subscription
+from users.models import Subscription, User
 
 
 class UserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField(read_only=True)
 
-    class Meta(UserSerializer.Meta):
-        model = get_user_model()
+    class Meta:
+        model = User
         fields = (
             "email",
             "id",
