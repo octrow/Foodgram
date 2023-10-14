@@ -117,7 +117,9 @@ jobs:
             EOF
 
             sudo docker compose -f foodgram/infra/docker-compose.production.yml up --build -d
+            sudo docker-compose -f foodgram/infra/docker-compose.production.yml exec -T backend python manage.py makemigrations
             sudo docker-compose -f foodgram/infra/docker-compose.production.yml exec -T backend python manage.py migrate
+            sudo docker-compose -f foodgram/infra/docker-compose.production.yml exec -T backend python manage.py load
             sudo docker-compose -f foodgram/infra/docker-compose.production.yml exec -T backend python manage.py collectstatic --no-input
 
   send_message:
