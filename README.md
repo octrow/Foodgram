@@ -1,5 +1,6 @@
 <h1 align="left"><a href="http://foodgramdjango.ddns.net/">Foodgram</a></h1>
 <br/>
+
 ![workflow](https://github.com/octrow/foodgram-project-react/actions/workflows/main_prod.yml/badge.svg)
 <p align="left">
     <img src="https://img.shields.io/badge/python-3.10.6-blue.svg?style=for-the-badge&logo=python&logoColor=ffdd54" />
