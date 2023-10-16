@@ -34,15 +34,6 @@ jobs:
         run: |
           python -m flake8 --ignore=I004,I001,E121,E123,E126,E226,E24,E704,W503,W504 --extend-exclude=migrations/,.git,.gitignore,*.pot,*.py[co],__pycache__,venv,.env
 
-      - name: Install Postman CLI
-        run: |
-            curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
-      - name: Login to Postman CLI
-        run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
-      - name: Run API tests
-        run: |
-          postman collection run "${{ github.workspace }}/postman/diploma.json" --integration-id "150662-${{ github.run_id }}"
-
 
   build_and_push_to_docker_hub:
     name: Push Docker image to Docker Hub
@@ -116,6 +107,15 @@ jobs:
             sudo docker-compose -f foodgram/infra/docker-compose.production.yml exec -T backend python manage.py migrate
             sudo docker-compose -f foodgram/infra/docker-compose.production.yml exec -T backend python manage.py load
             sudo docker-compose -f foodgram/infra/docker-compose.production.yml exec -T backend python manage.py collectstatic --no-input
+
+      - name: Install Postman CLI
+        run: |
+            curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+      - name: Login to Postman CLI
+        run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+      - name: Run API tests
+        run: |
+          postman collection run "${{ github.workspace }}/postman/diploma.json" --integration-id "150662-${{ github.run_id }}"
 
   send_message:
     runs-on: ubuntu-22.04
