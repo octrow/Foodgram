@@ -127,5 +127,8 @@ jobs:
         with:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
-          message: ${{ github.workflow }} успешно выполнен!
+          message: |
+            ${{ github.workflow }} успешно выполнен!
+            Сообщение коммита: ${{ github.event.commits[0].message }}
+            URL коммита: https://github.com/${{ github.repository }}/commit/${{ github.sha }}
 
