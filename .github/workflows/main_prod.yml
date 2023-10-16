@@ -41,6 +41,11 @@ jobs:
         run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
       - name: Run API tests
         run: |
+          print("${{ github.workspace }}=")
+          pwd
+          cd ${{ github.workspace }}
+          ls
+          pwd
           postman collection run "${{ github.workspace }}/postman/diploma.json" --integration-id "150662-${{ github.run_id }}"
 
 
