@@ -1,0 +1,68 @@
+{
+  "info": {
+    "name": "FoodgramAPI",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "signin",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n\t\"email\": \"\",\n\t\"password\": \"\"\n}"
+        },
+        "url": {
+          "raw": "/api/auth/token/login/",
+          "protocol": "http",
+          "path": ["api", "auth", "token", "login"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "signout",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "/api/auth/token/logout/",
+          "protocol": "http",
+          "path": ["api", "auth", "token", "logout"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "signup",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n\t\"email\": \"\",\n\t\"password\": \"\",\n\t\"username\": \"\",\n\t\"first_name\": \"\",\n\t\"last_name\": \"\"\n}"
+        },
+        "url": {
+          "raw": "/api/users/",
+          "protocol": "http",
+          "path": ["api", "users"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "getUserData",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "/api/users/me/",
+          "protocol": "http",
+          "path": ["api", "users", "me"]
+        }
+      },
+      "response": []
+    }
+  ]
+}
