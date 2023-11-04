@@ -13,6 +13,9 @@
     <img src="https://img.shields.io/github/actions/workflow/status/octrow/Foodgram/main_prod.yml?style=for-the-badge" />
 </p>
 
+[![en](https://img.shields.io/badge/lang-en-red.svg)](https://github.com/octrow/Foodgram/blob/master/README.md)
+[![ru](https://img.shields.io/badge/lang-ru-yellow.svg)](https://github.com/octrow/Foodgram/blob/master/README.RU.md)
+
 Это онлайн-сервис и API для него. На этом сервисе пользователи могут публиковать рецепты, подписываться на публикации других пользователей, добавлять понравившиеся рецепты в список «Избранное», а перед походом в магазин скачивать сводный список продуктов, необходимых для приготовления одного или нескольких выбранных блюд.
 
 ### Стек
