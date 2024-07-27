@@ -74,67 +74,6 @@ This is an online service and an API for it. On this service, users can publish 
 - add, delete and edit ingredients
 
 ## Installation instructions
-### Local installation
-1. Clone the repository:
-```
-git clone git@github.com:octrow/foodgram-project-react.git
-cd foodgram-project-react
-```
-
-2. In the root directory, create a .env file with environment variables.
-
-3. Create a virtual environment:
-```
-python -m venv venv
-```
-4. Activate the virtual environment
-* for Linux/Mac:
-```source venv/bin/activate```
-
-* for Windows:
-```source venv/Scripts/activate```
-
-4. Install dependencies from the requirements.txt file:
-
-```
-pip install -r requirements.txt
-```
-5. In foodgram/setting.py replace PostgreSQL with the built-in SQLite:
-```
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-```
-
-6. Apply migrations:
-```
-python manage.py makemigrations
-python manage.py migrate
-```
-7. Collect static:
-```
-python manage.py collectstatic --no-input
-```
-8. Create a superuser:
-```
-python manage.py createsuperuser
-```
-9. Load data into the model (ingredients):
-```
-python manage.py load
-```
-10. In the folder with the manage.py file, run the command to run locally:
-```
-python manage.py runserver
-```
-Locally, the documentation is available at:
-```
-http://127.0.0.1:8000/api/docs/
-```
-
 ### Running the project in containers:
 
 1. Install docker and docker-compose.
@@ -149,7 +88,8 @@ sudo apt-get install docker-compose-plugin
 ```
 
 
-2. Create and fill in the .env file in the root directory
+2. Create .env
+rename .env.example to .env or fill the .env file in the root directory with:
 ```
 SECRET_KEY=django-insecure-**************************************
 DEBUG=True
@@ -165,24 +105,25 @@ DB_NAME=postgram
 
 3. From the infra/ folder, deploy the containers using docker-compose:
 ```
-docker-compose up -d --build
+docker compose up -d --build
 ```
 4. Perform migrations:
 ```
-docker-compose exec backend python manage.py makemigrations
-docker-compose exec backend python manage.py migrate
+docker exec -it foodgram_backend bash
+python manage.py makemigrations
+python manage.py migrate
 ```
 5. Create a superuser:
 ```
-docker-compose exec backend python manage.py createsuperuser
+python manage.py createsuperuser
 ```
 6. Collect static:
 ```
-docker-compose exec backend python manage.py collectstatic --no-input
+python manage.py collectstatic --no-input
 ```
 7. Populate the database (with ingredients).
 ```
-docker-compose exec backend python manage.py load
+python manage.py load
 ```
 The project is available at:
 
@@ -195,7 +136,8 @@ http://localhost/api/docs/
 ```
 8. Stop the project:
 ```
-docker-compose down
+exit
+docker compose -f infra/docker-compose.yml down
 ```
 
 <details>
