@@ -2,8 +2,9 @@ version: '3.8'
 
 volumes:
   postgres_data:
-  static_value:
-  media_value:
+  backend_static:
+  backend_media:
+  frontend_static:
 
 networks:
   foodgram-network:
@@ -22,15 +23,13 @@ services:
 
     backend:
       container_name: foodgram_backend
-      # image: octrow/foodgram_backend:latest
       build:
         context: ../backend
         dockerfile: Dockerfile
-      # command: cp -r /app/collected_static/. /app/static/
       restart: unless-stopped
       volumes:
-        - static_value:/app/static/
-        - media_value:/app/media/
+        - backend_static:/app/static/
+        - backend_media:/app/media/
       depends_on:
         - db
       env_file:
@@ -41,14 +40,11 @@ services:
     frontend:
       container_name: foodgram_frontend
       image: octrow/foodgram_frontend:latest
-      # build:
-      #   context: ../frontend
-      #   dockerfile: Dockerfile
       depends_on:
         - db
         - backend
       volumes:
-        - ../frontend/:/app/result_build/
+        - frontend_static:/app/result_build/build
       networks:
         - foodgram-network
 
@@ -60,10 +56,10 @@ services:
         - "80:80"
       volumes:
         - ./nginx-local.conf:/etc/nginx/conf.d/default.conf
-        - ../frontend/build:/usr/share/nginx/html/
+        - frontend_static:/usr/share/nginx/html/
         - ../docs/:/usr/share/nginx/html/api/docs/
-        - static_value:/var/html/static/
-        - media_value:/var/html/media/
+        - backend_static:/backend_static
+        - backend_media:/backend_media
       depends_on:
         - backend
         - frontend

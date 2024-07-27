@@ -105,7 +105,7 @@ DB_NAME=postgram
 
 3. From the infra/ folder, deploy the containers using docker-compose:
 ```
-docker compose up -d --build
+docker compose -f infra/docker-compose.yml up -d --build
 ```
 4. Perform migrations:
 ```
